@@ -1,8 +1,11 @@
 from sys import argv
+import os
 
-file_path = argv[1]
 
-file1 = open(file_path, "r")
+file_name = argv[1]
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+file1 = open(dir_path + "/" + file_name, "r")
 Lines = file1.readlines()
 
 max_val = 0
