@@ -15,23 +15,29 @@ file1 = open(dir_path + "/" + file_name, "r")
 Lines = file1.readlines()
 
 symbol_points = {"A": 1, "B": 2, "C": 3}
-
+win_points = {"X": 0, "Y": 3, "Z": 6}
 conversion = {"X": "A", "Y": "B", "Z": "C"}
 
 
-def getMatchPoints(opponent: str, mine: str):
-    mypoints = symbol_points[mine]
+def getMatchPoints(opponent: str, game_res: str):
+    mypoints = win_points[game_res]
 
-    if opponent == mine:
-        mypoints += 3
-    if opponent == "C" and mine == "A":
-        mypoints += 6
-
-    if opponent < mine:
-        if mine == "B":
-            mypoints += 6
+    if game_res == "X":
+        if opponent == "A":
+            mypoints += 3
         if opponent == "B":
-            mypoints += 6
+            mypoints += 1
+        if opponent == "C":
+            mypoints += 2
+    if game_res == "Y":
+        mypoints += symbol_points[opponent]
+    if game_res == "Z":
+        if opponent == "A":
+            mypoints += 2
+        if opponent == "B":
+            mypoints += 3
+        if opponent == "C":
+            mypoints += 1
 
     return mypoints
 
@@ -39,7 +45,7 @@ def getMatchPoints(opponent: str, mine: str):
 total_points = 0
 
 for line in Lines:
-    opponent_symbol, my_symbol = line.split(None, maxsplit=2)
-    total_points += getMatchPoints(opponent_symbol, conversion[my_symbol])
+    opponent_symbol, game_res = line.split(None, maxsplit=2)
+    total_points += getMatchPoints(opponent_symbol, game_res)
 
 print(total_points)
