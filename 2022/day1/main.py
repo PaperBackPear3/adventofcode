@@ -1,7 +1,8 @@
-from os import getcwd
+from sys import argv
 
+file_path = argv[1]
 
-file1 = open(getcwd() + "/2022/day1/input.txt", "r")
+file1 = open(file_path, "r")
 Lines = file1.readlines()
 
 max_val = 0
