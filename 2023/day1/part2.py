@@ -7,7 +7,7 @@ file_name = sys.argv[1]
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 file1 = open(dir_path + "/" + file_name, "r")
-lines = file1.readlines()
+lines = file1.read().splitlines(keepends=False)
 
 result = 0
 digits = {
