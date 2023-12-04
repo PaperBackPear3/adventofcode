@@ -18,10 +18,12 @@ def get_points(choosen_numbers, winning_numbers):
             count += 1
     if count == 0:
         return 0
-    return pow(2, (count - 1))
+    return count
 
 
-for line in read_lines:
+card_copy_tracker = [1] * len(read_lines)
+
+for line_index, line in enumerate(read_lines):
     [card, values] = line.split(":")
     [choosen_numbers, winning_numbers] = values.split("|")
     choosen_numbers = [
@@ -30,6 +32,12 @@ for line in read_lines:
     winning_numbers = [
         int(character) for character in winning_numbers.split() if character.isdigit()
     ]
-    total_points = total_points + get_points(choosen_numbers, winning_numbers)
+    total_points = get_points(choosen_numbers, winning_numbers)
 
-print(total_points)
+    startIdx = line_index + 1
+    endIdx = line_index + total_points
+    currentCardCopies = card_copy_tracker[line_index]
+    for i in range(startIdx, endIdx + 1):
+        card_copy_tracker[i] += currentCardCopies
+
+print(sum(card_copy_tracker))
