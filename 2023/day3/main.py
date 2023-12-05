@@ -1,88 +1,83 @@
-from sys import argv
-import os
+import re
+
+INPUT = "./input.txt"
+sum1 = 0
+sum2 = 0
+### SOLUTION -- START
+
+def checkSymbol(s):
+    return re.search(r"[^\d\.]", s)
 
 
-file_name = argv[1]
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-file1 = open(dir_path + "/" + file_name, "r")
-read_lines = file1.read().splitlines(keepends=False)
-
-[line_before, current_line, line_after] = [""] + read_lines[0:2]
+def createLoc(x, y):
+    return f"x:{x},y:{y}"
 
 
-def get_line_symbols_indexes(line):
-    # check if line has symbols
-    symbols_index = []
-    for index, char in enumerate(line):
-        if not char.isdigit() and char != ".":
-            symbols_index.append(index)
-    return symbols_index
+def checkIfGear(s, x, y):
+    return (
+        f"{createLoc(x, y)}"
+        if s == "*"
+        else ""
+    )
+
+with open(INPUT, "r") as f:
+    lines = f.read().splitlines()
+    allNumbers = []
+    allGears = {}
+    for lineIdx, line in enumerate(lines):
+        numbers = [[int(m.group(0)), m.span()] for m in re.finditer(r"(\d+)", line)]
+        for num in numbers:
+            isPart = False
+            [n, (mStart, mEnd)] = num
+            startIdx = max(0, mStart - 1)
+            endIdx = min(len(lines) - 1, mEnd)
+            gearCoor = ""
+
+            # CHECK ADJACENT LEFT
+            symbol = checkSymbol(line[startIdx])
+            if symbol:
+                isPart = True
+                gearCoor = checkIfGear(symbol.group(0), startIdx, lineIdx)
+
+            # CHECK ADJACENT RIGHT
+            symbol = checkSymbol(line[endIdx])
+            if symbol:
+                isPart = True
+                gearCoor = checkIfGear(symbol.group(0), endIdx, lineIdx)
+
+            # CHECK ADJACENT TOP ROW
+            if lineIdx != 0:
+                for sIdx in range(startIdx, endIdx + 1):
+                    symbol = checkSymbol(lines[lineIdx - 1][sIdx])
+                    if symbol:
+                        isPart = True
+                        gearCoor = checkIfGear(symbol.group(0), sIdx, lineIdx - 1)
+                        break
+
+            # CHECK ADJACENT BOTTOM ROW
+            if lineIdx < len(lines) - 1:
+                for sIdx in range(startIdx, endIdx + 1):
+                    symbol = checkSymbol(lines[lineIdx + 1][sIdx])
+                    if symbol:
+                        if n == 114:
+                            print(sIdx, startIdx, symbol.group(0))
+                        isPart = True
+                        gearCoor = checkIfGear(symbol.group(0), sIdx, lineIdx + 1)
+                        break
+
+            if isPart:
+                sum1 += n
+                if gearCoor:
+                    numList = allGears.get(gearCoor)
+                    numList = numList + [n] if isinstance(numList, list) else [n]
+                    allGears[gearCoor] = numList
+                    if len(numList) == 2:
+                        [p0, p1] = numList
+                        gearRatio = p0 * p1
+                        sum2 += gearRatio
 
 
-def get_line_numbers_indexes(line):
-    # check if line has numbers
-    numbers_index = {"numbers": [], "indexs": []}
-    number = ""
-    for index, char in enumerate(line):
-        if char.isdigit():
-            number += char
-            if index == len(line) - 1:
-                numbers_index["numbers"].append(number)
-                numbers_index["indexs"].append({"start": index - len(number) + 1, "end": index-1})
-        if char == ".":
-            if number:
-                numbers_index["numbers"].append(number)
-                numbers_index["indexs"].append({"start": index - len(number), "end": index-1})
-                number = ""
-    return numbers_index
+print("Part 1 Sum", sum1)
+print("Part 2 Sum", sum2)
 
-
-def check_if_prec_ext(
-    line_before_numbers_indexes,
-    current_line_numbers_indexes,
-    line_after_numbers_indexes,
-    indexes,
-):
-    sum_of_numbers = 0
-    # check each character is digit, if yes take the whole number and check if there are nearby symbols that are not "." if condition is matched return the number
-    for index in indexes:
-        #check if line before has numbers at given index
-        for number_index in line_before_numbers_indexes["indexs"]:
-            if number_index - index ==0:
-                sum_of_numbers += int(line_before_numbers_indexes["numbers"][line_before_numbers_indexes["indexs"].index(number_index)])
-        if index in line_before_numbers_indexes["indexs"]:
-            sum_of_numbers += int(line_before_numbers_indexes["numbers"][line_before_numbers_indexes["indexs"].index(index)])
-    return sum_of_numbers
-
-         
-
-
-def iterate_over_lines(lines):
-    for index, line in enumerate(lines):
-        if index == 0:
-            continue
-        if index == len(lines) - 1:
-            break
-        [line_before, current_line, line_after] = lines[index - 1 : index + 2]
-        [
-            line_before_numbers_indexes,
-            current_line_numbers_indexes,
-            line_after_numbers_indexes,
-        ] = [
-            get_line_numbers_indexes(line_before),
-            get_line_numbers_indexes(current_line),
-            get_line_numbers_indexes(line_after),
-        ]
-        indexes = get_line_symbols_indexes(current_line)
-        res = check_if_prec_ext(
-            line_before_numbers_indexes,
-            current_line_numbers_indexes,
-            line_after_numbers_indexes,
-            indexes,
-        )
-
-        print(res)
-
-
-iterate_over_lines(read_lines)
+### SOLUTION -- END
