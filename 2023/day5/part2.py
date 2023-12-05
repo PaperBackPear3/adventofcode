@@ -12,6 +12,15 @@ total_points = 0
 # seeds = int(read_lines[0].split(" "))
 
 
+def filter_candidates_and_seed_maps(best_matching_points, seeds_and_offsets):
+    results = set()
+    for point in best_matching_points:
+        for seed, offset in seeds_and_offsets.items():
+            if point >= seed and point <= (seed + offset):
+                results.add(point + offset)
+    return results
+
+
 def get_steps_maps_from_lines(lines):
     steps = []
     index = 0
@@ -35,20 +44,17 @@ def get_steps_maps_from_lines(lines):
     return steps
 
 
-def get_map_for_next_step(step, seed):
-    next_map = seed
-    for value in step:
-        if seed >= value[1] and seed < (value[1] + value[2]):
-            next_map = seed + (value[0] - value[1])
-    return next_map
-
-
-def get_quantity_per_step(step, seed, offset):
-    if seed >= step[1] and seed < (step[1] + step[2]):
-        if (seed + offset) > (step[1] + step[2]):
-            return (step[1] + step[2]) - (seed + offset)
-        else:
-            return offset
+def update_best_matching(best_matching_points, maps):
+    new_best_matching_points = set()
+    for map_data in maps:
+        for point in best_matching_points:
+            if map_data[0] <= point and point <= (map_data[0] + map_data[2]):
+                new_best_matching_points.add(point + map_data[2])
+    # add boundaries
+    for map_data in maps:
+        new_best_matching_points.add(map_data[1])
+        new_best_matching_points.add(map_data[1] + map_data[2] - 1)
+    return new_best_matching_points
 
 
 seeds = [
@@ -62,10 +68,13 @@ for index in range(0, len(seeds) - 1, 2):
 steps_map_dest_sour_off = get_steps_maps_from_lines(read_lines)
 
 res = []
-for seed, offset in seeds_and_offsets.items():
-    for values in steps_map_dest_sour_off:
-        for step in values:
-            qty_per_step = get_quantity_per_step(step, seed, offset)
-    res.append(qty_per_step)
 
-print(min(res))
+best_matching_points = set()
+for maps in steps_map_dest_sour_off[::-1]:
+    best_matching_points = update_best_matching(best_matching_points, maps)
+
+best_matching_points = filter_candidates_and_seed_maps(
+    best_matching_points, seeds_and_offsets
+)
+
+print(min(best_matching_points))
