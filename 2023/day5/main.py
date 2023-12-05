@@ -17,12 +17,16 @@ def get_steps_maps_from_lines(lines):
     for line in lines:
         if line is not "":
             if index == 0:
-                steps.append(line)
-            else:
-                steps[index-1] += (int(line.split(" ")))
-        
+                steps.append([line])
+            if index > 0:
+                steps[-1].append([int(character) for character in line.split() if character.isdigit()])
+            index += 1
+        else:
+            index = 0
     return steps
 
-get_steps_maps_from_lines(read_lines)
+steps = get_steps_maps_from_lines(read_lines)
+seeds = [int(character) for character in steps[0][0].split(" ") if character.isdigit()]
 
-#[destination_range_start ,source_range_start, range_length] = 
+for seed in seeds:
+    total_points += seed
