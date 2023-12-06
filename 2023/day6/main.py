@@ -20,11 +20,10 @@ read_lines = file1.read().splitlines(keepends=False)
 def calc_diff_min_max(time,distance):
   delta = (time ** 2) - (4 * distance)
   delta = math.sqrt(delta)
-  delta = round(delta)
-  min_val = (-time - delta) / 2
-  max_val = (-time + delta) / 2
+  min_val = math.floor((-time - delta) / (2))
+  max_val = math.ceil((-time + delta) / (2))
 
-  return (max_val-min_val)
+  return (max_val-min_val)-1
 
 times =[ int(character) for character in read_lines.pop(0).split(" ") if character.isdigit()]
 record_distances = [ int(character) for character in read_lines.pop(0).split(" ") if character.isdigit()]
