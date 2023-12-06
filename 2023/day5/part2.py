@@ -24,7 +24,6 @@ def filter_candidates_and_seed_maps(best_matching_points, seeds_and_offsets):
 def get_steps_maps_from_lines(lines):
     steps = []
     index = 0
-    prev_line_key = ""
     for line in lines:
         if line != "":
             if index == 0:

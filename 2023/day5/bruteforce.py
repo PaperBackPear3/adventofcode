@@ -54,6 +54,7 @@ for index in range(0, len(seeds) - 1, 2):
     seeds_and_offsets[int(seeds[index])] = seeds[index + 1]
 
 new_seeds = {}
+#make this multi threaded
 for key, offset in seeds_and_offsets.items():
     for index in range(0, offset):
         new_seeds[key + index] = 0
