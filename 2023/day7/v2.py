@@ -1,14 +1,15 @@
 from sys import argv
 import os
-import math
 import time
+
+
 
 file_name = argv[1]
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 file1 = open(dir_path + "/" + file_name, "r")
 read_lines = file1.read().splitlines(keepends=False)
-
+file1.close()
 
 map_letters_to_numbers = {
     "A": 14,
@@ -69,7 +70,7 @@ def prepare_input(lines):
                 cards_as_numbers.append(map_letters_to_numbers[card])
             else:
                 cards_as_numbers.append(int(card))
-        players.append([cards_as_numbers, bets])
+        players.append([cards_as_numbers, bets, get_hand_type(cards_as_numbers)])
     return players
 
 
@@ -77,14 +78,12 @@ def get_player_rank_in_game(index, all_players):
     # return the rank of the player in the game
     playing_player = all_players[index]
     player_rank_score = 1
-    playing_player_hand_type = get_hand_type(playing_player[0])
     for inner_index, player in enumerate(all_players):
         if inner_index == index:
             continue
-        player_hand_type = get_hand_type(player[0])
-        if playing_player_hand_type > player_hand_type:
+        if playing_player[2] > player[2]:
             player_rank_score += 1
-        elif playing_player_hand_type == player_hand_type:
+        elif playing_player[2] == player[2]:
             if get_highest_hand(playing_player[0], player[0]) == playing_player[0]:
                 player_rank_score += 1
     return player_rank_score
