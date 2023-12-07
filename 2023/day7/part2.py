@@ -21,15 +21,17 @@ map_letters_to_numbers = {
 def get_hand_type(cards):
     # 7 possible cases
     cards_copy = cards
-    #J now counts the best possible hand
+    # J now counts the best possible hand
     val = 1
-    if cards_copy == [1,1,1,1,1]:
+    if cards_copy == [1, 1, 1, 1, 1]:
         return 7
     cards_occurencies_dict = {i: cards_copy.count(i) for i in cards_copy}
     # check if theres a J (1) in the hand and make it count as the most present one
     if 1 in cards_occurencies_dict.keys():
         qty = cards_occurencies_dict.pop(1)
-        cards_occurencies_dict[max(cards_occurencies_dict,key=cards_occurencies_dict.get)] += qty
+        cards_occurencies_dict[
+            max(cards_occurencies_dict, key=cards_occurencies_dict.get)
+        ] += qty
     match len(cards_occurencies_dict):
         case 1:  # all cards are the same
             val = 7
@@ -47,7 +49,6 @@ def get_hand_type(cards):
                     val = 3
         case 4:  # can be pair
             val = 2
-
 
     return val
 
