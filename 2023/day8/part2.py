@@ -49,9 +49,11 @@ def get_next_move(node, index, count):
             return count
         return get_next_move(parsed_input[node[1]], index + 1, count)
 
-
+start_time = time.time()
 res = []
 for start in starting_inputs:
     res.append(get_next_move(parsed_input[start], 0, global_count))
 
+end = time.time()
+print(end - start_time)
 print(math.lcm(*res))
