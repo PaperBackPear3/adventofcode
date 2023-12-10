@@ -1,7 +1,14 @@
-with open("10.txt", "r") as file:
-    data = file.read().strip()
+import os
+import time
+import sys
 
-GRID = data.split("\n")
+file_name = sys.argv[1]
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+file1 = open(dir_path + "/" + file_name, "r")
+GRID = file1.read().splitlines(keepends=False)
+file1.close()
+
 MOVES = {
     ("|", (1, 0)): (1, 0),
     ("|", (-1, 0)): (-1, 0),
@@ -63,7 +70,10 @@ def part_one():
 def part_two():
     # https://en.wikipedia.org/wiki/Pick%27s_theorem
     # https://en.wikipedia.org/wiki/Shoelace_formula
-    return shoelace_area(find_path()) - part_one() + 1
+    a = find_path()
+    b = part_one()
+    showlace = shoelace_area(a)
+    return showlace - b + 1
 
 
 print(f"Part 1: {part_one()}")  # 6757

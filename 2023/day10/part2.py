@@ -154,6 +154,17 @@ FURTHEST_POINT = walk_pipes_to_find_furthest_point(
 # print(loop)
 print(FURTHEST_POINT / 2)
 
+
+def part_two():
+    # https://en.wikipedia.org/wiki/Pick%27s_theorem
+    # https://en.wikipedia.org/wiki/Shoelace_formula
+    showlace = shoelace_area(loop)
+    return showlace - int(FURTHEST_POINT / 2) + 1
+
+
+INSIDE_POINTS = part_two()
+print(INSIDE_POINTS)
+
 # print(WORLD_MAP)
 y = [loop[i][0] for i in range(len(loop))]
 x = [loop[i][1] for i in range(len(loop))]
