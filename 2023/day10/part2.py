@@ -132,6 +132,16 @@ def walk_pipes_to_find_furthest_point(current_coords, prev_coords, count):
     )
 
 
+def shoelace_area(points):
+    n = len(points)
+    res = 0
+    for i in range(n):
+        x1, y1 = points[i]
+        x2, y2 = points[(i + 1) % n]
+        res += x1 * y2 - x2 * y1
+    return abs(res) >> 1
+
+
 WORLD_MAP, starting_coords = create_map(read_lines)
 WORLD_MAP[starting_coords[0]][starting_coords[1]] = find_pipe_at_starting_point(
     WORLD_MAP, starting_coords

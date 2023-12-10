@@ -1,297 +1,70 @@
-with open("input.txt") as f:
-    lines = f.readlines()
+with open("10.txt", "r") as file:
+    data = file.read().strip()
 
-lines = [l.strip() for l in lines]
-
-
-for idx, l in enumerate(lines):
-    if l.find("S") != -1:
-        S = (idx, l.find("S"))
-        break
-
-distances = {S: 0}
-previous = {S: None}
-router = []
-
-lefts = []
-rights = []
-
-
-def find_next(current, pipe):
-    global distances
-    global lines
-    if pipe == "L":
-        if (current[0], current[1] + 1) not in distances:
-            return (current[0], current[1] + 1)
-        elif (current[0] - 1, current[1]) not in distances:
-            return (current[0] - 1, current[1])
-    if pipe == "F":
-        if (current[0], current[1] + 1) not in distances:
-            return (current[0], current[1] + 1)
-        elif (current[0] + 1, current[1]) not in distances:
-            return (current[0] + 1, current[1])
-    if pipe == "7":
-        if (current[0], current[1] - 1) not in distances:
-            return (current[0], current[1] - 1)
-        elif (current[0] + 1, current[1]) not in distances:
-            return (current[0] + 1, current[1])
-    if pipe == "J":
-        if (current[0], current[1] - 1) not in distances:
-            return (current[0], current[1] - 1)
-        elif (current[0] - 1, current[1]) not in distances:
-            return (current[0] - 1, current[1])
-    if pipe == "-":
-        if (current[0], current[1] - 1) not in distances:
-            return (current[0], current[1] - 1)
-        elif (current[0], current[1] + 1) not in distances:
-            return (current[0], current[1] + 1)
-    if pipe == "|":
-        if (current[0] - 1, current[1]) not in distances:
-            return (current[0] - 1, current[1])
-        elif (current[0] + 1, current[1]) not in distances:
-            return (current[0] + 1, current[1])
-    return None
+GRID = data.split("\n")
+MOVES = {
+    ("|", (1, 0)): (1, 0),
+    ("|", (-1, 0)): (-1, 0),
+    ("-", (0, 1)): (0, 1),
+    ("-", (0, -1)): (0, -1),
+    ("L", (0, -1)): (-1, 0),
+    ("L", (1, 0)): (0, 1),
+    ("J", (0, 1)): (-1, 0),
+    ("J", (1, 0)): (0, -1),
+    ("7", (0, 1)): (1, 0),
+    ("7", (-1, 0)): (0, -1),
+    ("F", (0, -1)): (1, 0),
+    ("F", (-1, 0)): (0, 1),
+}
+START = next(
+    (i, j) for i, row in enumerate(GRID) for j, v in enumerate(row) if v == "S"
+)
 
 
-def find_first(current):
-    global lines
-    new = []
-    check = lines[current[0]][current[1] - 1]
-    if check == "-" or check == "L" or check == "F":
-        new.append((current[0], current[1] - 1))
-        return new
-    check = lines[current[0]][current[1] + 1]
-    if check == "-" or check == "7" or check == "J":
-        new.append((current[0], current[1] + 1))
-        return new
-    check = lines[current[0] - 1][current[1]]
-    if check == "|" or check == "7" or check == "F":
-        new.append((current[0] - 1, current[1]))
-        return new
-    check = lines[current[0] + 1][current[1]]
-    if check == "|" or check == "L" or check == "J":
-        new.append((current[0] + 1, current[1]))
-        return new
-    return new
+def find_start_orientation(start):
+    n, m = len(GRID), len(GRID[0])
+    i, j = start
+    dirs = [(-1, 0, "|7F"), (1, 0, "|LJ"), (0, -1, "-FL"), (0, 1, "-J7")]
+    for di, dj, valid in dirs:
+        ni, nj = i + di, j + dj
+        if 0 <= ni < n and 0 <= nj < m and GRID[ni][nj] in valid:
+            return "|" if di else "-", (di, dj)
 
 
-current = S
-pipe = "S"
-
-next = find_first(current)
-
-route = []
-route.append(current)
-
-for n in next:
-    distances[n] = 1
-    previous[n] = S
-
-while len(next) > 0:
-    current = next.pop(0)
-    route.append(current)
-    pipe = lines[current[0]][current[1]]
-
-    news = find_next(current, pipe)
-
-    if news is not None:
-        distances[news] = distances[current] + 1
-        previous[news] = current
-        next.append(news)
-
-high = 0
-for k in distances:
-    if distances[k] > high:
-        high = distances[k]
-
-# print(high)
-# print(route)
+def find_path():
+    cur, dir = find_start_orientation(START)
+    i, j = START
+    res = [(i, j)]
+    while True:
+        dir = MOVES[cur, dir]
+        di, dj = dir
+        i, j = i + di, j + dj
+        if (i, j) == START:
+            break
+        cur = GRID[i][j]
+        res.append((i, j))
+    return res
 
 
-def dir(current, prev):
-    return (current[0] - prev[0], current[1] - prev[1])
+def shoelace_area(points):
+    n = len(points)
+    res = 0
+    for i in range(n):
+        x1, y1 = points[i]
+        x2, y2 = points[(i + 1) % n]
+        res += x1 * y2 - x2 * y1
+    return abs(res) >> 1
 
 
-lefts = []
-rights = []
-used = set(route)
+def part_one():
+    return len(find_path()) >> 1
 
 
-def inside(position):
-    global lines
-    if position[0] < 0 or position[1] < 0:
-        return False
-    if position[0] >= len(lines) or position[1] >= len(lines[0]):
-        return False
-    return True
+def part_two():
+    # https://en.wikipedia.org/wiki/Pick%27s_theorem
+    # https://en.wikipedia.org/wiki/Shoelace_formula
+    return shoelace_area(find_path()) - part_one() + 1
 
 
-def over(position):
-    return position[0] - 1, position[1]
-
-
-def under(position):
-    return position[0] + 1, position[1]
-
-
-def toleft(position):
-    return position[0], position[1] - 1
-
-
-def toright(position):
-    return position[0], position[1] + 1
-
-
-for current in route:
-    if current == S:
-        prev = route[-1]
-        next = route[1]
-
-        frm = dir(current, prev)
-        to = dir(next, current)
-        if (frm == (0, 1) and to == (0, 1)) or (frm == (0, -1) and to == (0, -1)):
-            pipe = "-"
-        if (frm == (1, 0) and to == (1, 0)) or (frm == (-1, 0) and to == (-1, 0)):
-            pipe = "|"
-        if (frm == (1, 0) and to == (0, 1)) or (frm == (0, -1) and to == (-1, 0)):
-            pipe = "L"
-        if (frm == (0, 1) and to == (1, 0)) or (frm == (-1, 0) and to == (0, -1)):
-            pipe = "7"
-        if (frm == (0, 1) and to == (-1, 0)) or (frm == (1, 0) and to == (0, -1)):
-            pipe = "J"
-        if (frm == (-1, 0) and to == (0, 1)) or (frm == (0, -1) and to == (0, 1)):
-            pipe = "F"
-
-    else:
-        prev = previous[current]
-        pipe = lines[current[0]][current[1]]
-
-    direction = dir(current, prev)
-
-    if direction == (0, 1):  # right
-        if pipe == "-":
-            below = under(current)
-            if below not in used and inside(below):
-                rights.append(below)
-            above = over(current)
-            if above not in used and inside(above):
-                lefts.append(above)
-        if pipe == "7":
-            right = toright(current)
-            if right not in used and inside(right):
-                lefts.append(right)
-            above = over(current)
-            if above not in used and inside(above):
-                lefts.append(above)
-        if pipe == "J":
-            right = toright(current)
-            if right not in used and inside(right):
-                rights.append(right)
-            below = under(current)
-            if below not in used and inside(below):
-                rights.append(below)
-    if direction == (0, -1):  # left
-        if pipe == "-":
-            below = under(current)
-            if below not in used and inside(below):
-                lefts.append(below)
-            above = over(current)
-            if above not in used and inside(above):
-                rights.append(above)
-        if pipe == "L":
-            below = under(current)
-            if below not in used and inside(below):
-                lefts.append(below)
-            left = toleft(current)
-            if left not in used and inside(left):
-                lefts.append(left)
-        if pipe == "F":
-            left = toleft(current)
-            if left not in used and inside(left):
-                rights.append(left)
-            above = over(current)
-            if above not in used and inside(above):
-                rights.append(above)
-    if direction == (1, 0):
-        if pipe == "|":
-            left = toleft(current)
-            if left not in used and inside(left):
-                rights.append(left)
-            right = toright(current)
-            if right not in used and inside(right):
-                lefts.append(right)
-        if pipe == "J":
-            right = toright(current)
-            if right not in used and inside(right):
-                lefts.append(right)
-            below = under(current)
-            if below not in used and inside(below):
-                lefts.append(below)
-        if pipe == "L":
-            left = toleft(current)
-            if left not in used and inside(left):
-                rights.append(left)
-            below = under(current)
-            if below not in used and inside(below):
-                rights.append(below)
-    if direction == (-1, 0):
-        if pipe == "|":
-            left = toleft(current)
-            if left not in used and inside(left):
-                lefts.append(left)
-            right = toright(current)
-            if right not in used and inside(right):
-                rights.append(right)
-        if pipe == "F":
-            left = toleft(current)
-            if left not in used and inside(left):
-                lefts.append(left)
-            above = over(current)
-            if above not in used and inside(above):
-                lefts.append(above)
-        if pipe == "7":
-            right = toright(current)
-            if right not in used and inside(right):
-                rights.append(right)
-            above = over(current)
-            if above not in used and inside(above):
-                rights.append(above)
-
-route = set(route)
-
-if len(lefts) < len(rights):
-    searches = lefts
-else:
-    searches = rights
-
-areas = []
-# print("lefts", lefts)
-# print("rights", rights)
-
-
-while len(searches) > 0:
-    elem = searches.pop(0)
-    if elem in areas:
-        continue
-    areas.append(elem)
-
-    up = (elem[0] - 1, elem[1])
-
-    if up not in areas and inside(up) and up not in route:
-        searches.append(up)
-
-    down = (elem[0] + 1, elem[1])
-    if down not in areas and inside(down) and down not in route:
-        searches.append(down)
-
-    left = (elem[0], elem[1] - 1)
-    if left not in areas and inside(left) and left not in route:
-        searches.append(left)
-
-    right = (elem[0], elem[1] + 1)
-    if right not in areas and inside(right) and right not in route:
-        searches.append(right)
-
-#print(searches)
-
-print(len(areas))
+print(f"Part 1: {part_one()}")  # 6757
+print(f"Part 2: {part_two()}")  # 523
