@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import matplotlib.pyplot as plt
 
 sys.setrecursionlimit(10000000)
 file_name = sys.argv[1]
@@ -140,5 +141,12 @@ loop = [starting_coords]
 FURTHEST_POINT = walk_pipes_to_find_furthest_point(
     current_coords=starting_coords, prev_coords=starting_coords, count=count
 )
-print(loop)
+# print(loop)
 print(FURTHEST_POINT / 2)
+
+# print(WORLD_MAP)
+y = [loop[i][0] for i in range(len(loop))]
+x = [loop[i][1] for i in range(len(loop))]
+plt.plot(x, y)
+plt.gca().invert_yaxis()
+plt.show()
