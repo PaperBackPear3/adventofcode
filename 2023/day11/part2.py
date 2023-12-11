@@ -73,7 +73,7 @@ def calculate_distance(
                 row < starting_coords[0] and row > pair[0]
             ):
                 intersections += 1
-        distances.append(distance + intersections)
+        distances.append(distance + (intersections * 1000000))
     return sum(distances)
 
 
