@@ -24,7 +24,9 @@ func ReadAndSplitColumns(filePath string, removeWhiteSpaces bool, delimiter stri
 	for scanner.Scan() {
 		// do something with a line
 		line := scanner.Text()
-		fmt.Printf("line: %s\n", line)
+		if os.Getenv("DEBUG") == "true" {
+			fmt.Printf("line: %s\n", line)
+		}
 		// Split by columns
 		splitted := SplitStringToArray(line, removeWhiteSpaces, delimiter)
 		//add each element of splitted to splitledline creating N columns based on splitted length

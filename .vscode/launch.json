@@ -5,13 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "GO: Current file",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${file}"
+        },
+        {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "args": ["input.txt"],
+            "args": [
+                "input.txt"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
-        }
+        },
+        {}
     ]
 }

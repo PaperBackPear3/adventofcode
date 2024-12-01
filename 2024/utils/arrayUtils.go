@@ -1,6 +1,8 @@
 package utils
 
-import "math"
+import (
+	"math"
+)
 
 func SortArray(array []int) []int {
 	// Sorts an array of elements
@@ -61,4 +63,14 @@ func ArraySum(array []int) int {
 		sum = sum + val
 	}
 	return sum
+}
+
+func ArrayFindOccasions(array []int, number int) int {
+	occasions := 0
+	for _, val := range array {
+		if val == number {
+			occasions++
+		}
+	}
+	return occasions
 }
