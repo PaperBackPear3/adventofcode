@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func ReadAndSplitColumns(filePath string, removeWhiteSpaces bool, delimiter string) [][]string {
@@ -80,4 +81,66 @@ func ReadAndSplitRows(filePath string, removeWhiteSpaces bool, delimiter string)
 
 	return splittedLine
 
+}
+
+func ReadFromDelimiter(filePath string, delimiter string, offset int) []string {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	results := make([]string, 0)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if os.Getenv("DEBUG") == "true" {
+			fmt.Printf("line: %s\n", line)
+		}
+		start := 0
+		for {
+			index := strings.Index(line[start:], delimiter)
+			if index == -1 {
+				break
+			}
+			start += index + len(delimiter)
+			end := start + offset
+			if end > len(line) {
+				end = len(line)
+			}
+			results = append(results, line[start:end])
+			start = end
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return results
+}
+
+func ReadFileLineByLine(filePath string) []string {
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	lines := make([]string, 0)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if os.Getenv("DEBUG") == "true" {
+			fmt.Printf("line: %s\n", line)
+		}
+		lines = append(lines, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return lines
 }

@@ -74,3 +74,13 @@ func ArrayFindOccasions(array []int, number int) int {
 	}
 	return occasions
 }
+
+func ArrayMultiply(array []int) int {
+
+	product := 1
+	for _, val := range array {
+		product *= val
+	}
+	return product
+
+}
