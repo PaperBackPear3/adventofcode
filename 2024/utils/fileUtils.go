@@ -144,3 +144,26 @@ func ReadFileLineByLine(filePath string) []string {
 
 	return lines
 }
+
+func ReadMultipleTypesOfInputs(filePath string, delimiter string) [][]string {
+	lines := ReadFileLineByLine(filePath)
+	var inputs [][]string
+	var currentInput []string
+
+	for _, line := range lines {
+		if line == delimiter {
+			if len(currentInput) > 0 {
+				inputs = append(inputs, currentInput)
+				currentInput = []string{}
+			}
+		} else {
+			currentInput = append(currentInput, line)
+		}
+	}
+
+	if len(currentInput) > 0 {
+		inputs = append(inputs, currentInput)
+	}
+
+	return inputs
+}

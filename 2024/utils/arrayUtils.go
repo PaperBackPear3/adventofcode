@@ -84,3 +84,13 @@ func ArrayMultiply(array []int) int {
 	return product
 
 }
+
+func ArrayHas(array []int, value int) bool {
+	for _, val := range array {
+		if val == value {
+			return true
+		}
+	}
+
+	return false
+}
