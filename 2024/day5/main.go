@@ -72,15 +72,12 @@ func part1(rules map[int][]int, pageNumbers [][]int) ([][]int, [][]int) {
 }
 
 func part2(rules map[int][]int, wrongPages [][]int) [][]int {
-
-	fixedPages := [][]int{}
 	for _, pages := range wrongPages {
 		for i := 1; i < len(pages); i++ {
 			for j := i; j > 0 && utils.ArrayHas(rules[pages[j]], pages[j-1]); j-- {
 				pages[j], pages[j-1] = pages[j-1], pages[j]
 			}
 		}
-		fixedPages = append(fixedPages, pages)
 	}
-	return fixedPages
+	return wrongPages
 }
