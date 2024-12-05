@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	inputs := utils.ReadMultipleTypesOfInputs("test.txt", "")
+	inputs := utils.ReadMultipleTypesOfInputs("input.txt", "")
 	var pageNumbers [][]int
 	for _, input := range inputs[1] {
 		log.Println(input)
@@ -34,13 +34,15 @@ func main() {
 	}
 	println(utils.ArraySum(middlePages))
 
-	fixed := part2(wrongPages)
+	fixed := part2(daRulez, wrongPages)
 	savedPages, _ = part1(daRulez, fixed)
+	middlePages = []int{}
+
 	for _, pages := range savedPages {
 		middle := pages[len(pages)/2]
 		middlePages = append(middlePages, middle)
 	}
-	println(utils.ArraySum(middlePages))
+	println("p2: ", utils.ArraySum(middlePages))
 
 }
 
@@ -69,7 +71,16 @@ func part1(rules map[int][]int, pageNumbers [][]int) ([][]int, [][]int) {
 	return savedPages, wrongPages
 }
 
-func part2(wrongPages [][]int) [][]int {
+func part2(rules map[int][]int, wrongPages [][]int) [][]int {
+
 	fixedPages := [][]int{}
+	for _, pages := range wrongPages {
+		for i := 1; i < len(pages); i++ {
+			for j := i; j > 0 && utils.ArrayHas(rules[pages[j]], pages[j-1]); j-- {
+				pages[j], pages[j-1] = pages[j-1], pages[j]
+			}
+		}
+		fixedPages = append(fixedPages, pages)
+	}
 	return fixedPages
 }
