@@ -24,19 +24,42 @@ type Guard struct {
 
 func main() {
 	lines := utils.ReadAndSplitRows("./input.txt", false, "")
-	part1(lines)
+	linesCopy := make([][]string, len(lines))
+	for i := range lines {
+		linesCopy[i] = make([]string, len(lines[i]))
+		copy(linesCopy[i], lines[i])
+	}
+	guard := findGuards(lines)[0]
+	lines[guard.Y][guard.X] = string(guard.Direction)
+
+	part1(lines, guard, -1, -1)
+	lines[guard.Y][guard.X] = string(guard.Direction)
+	println("first map:")
+	printMap(lines, guard)
+	part2(lines, guard)
+	println("final map:")
+	printMap(lines, guard)
 }
 
-func part1(lines [][]string) {
-	guard := findGuards(lines)[0]
+func part1(lines [][]string, guard Guard, fakeObstacleX int, fakeObstacleY int) bool {
 	fmt.Printf("Guard: %+v\n", guard)
 	maxX := len(lines[0])
 	maxY := len(lines)
 	stepTaken := 1
+	loop := 0
 	for {
-		if !isWithinBoundaries(guard.X, guard.Y, maxX, maxY, guard.Direction) {
-			break
+		if loop < 5 {
+			if (guard.Direction == Right && guard.X+1 == fakeObstacleX && guard.Y == fakeObstacleY) ||
+				(guard.Direction == Left && guard.X-1 == fakeObstacleX && guard.Y == fakeObstacleY) ||
+				(guard.Direction == Up && guard.X == fakeObstacleX && guard.Y-1 == fakeObstacleY) ||
+				(guard.Direction == Down && guard.X == fakeObstacleX && guard.Y+1 == fakeObstacleY) {
+				loop++
+			}
+		} else {
+			println("loop detected", fakeObstacleX, fakeObstacleY)
+			return false
 		}
+
 		switch guard.Direction {
 		case Right:
 			if lines[guard.Y][guard.X+1] == "#" {
@@ -79,8 +102,12 @@ func part1(lines [][]string) {
 				guard.Y++
 			}
 		}
+		if !isWithinBoundaries(guard.X, guard.Y, maxX, maxY, guard.Direction) {
+			break
+		}
 	}
-	println(stepTaken)
+	println("steps: ", stepTaken)
+	return true
 }
 
 func findGuards(lines [][]string) []Guard {
@@ -109,5 +136,47 @@ func isWithinBoundaries(x, y, maxX, maxY int, direction Direction) bool {
 		return x >= 0 && x < maxX && y >= 0 && y < maxY-1
 	default:
 		return false
+	}
+}
+
+func part2(linesWithPath [][]string, guard Guard) {
+	fmt.Printf("Guard: %+v\n", guard)
+	count := 0
+	for y := range linesWithPath {
+		for x := range linesWithPath[y] {
+			if linesWithPath[y][x] == "X" {
+				linesCopy := make([][]string, len(linesWithPath))
+				for i := range linesWithPath {
+					linesCopy[i] = make([]string, len(linesWithPath[i]))
+					copy(linesCopy[i], linesWithPath[i])
+				}
+				linesCopy[y][x] = "#"
+				if !part1(linesCopy, guard, x, y) {
+					linesWithPath[y][x] = "O"
+					count = count + 1
+					printMap(linesWithPath, guard)
+				}
+			}
+		}
+	}
+	println("count: ", count)
+}
+
+func printMap(lines [][]string, guard Guard) {
+	for y, row := range lines {
+		for x, cell := range row {
+			if x == guard.X && y == guard.Y {
+				fmt.Printf("\033[34m%s\033[0m", guard.Direction) // Print guard position in blue
+			} else if cell == "X" {
+				fmt.Print("\033[32mX\033[0m") // Print path in green
+			} else if cell == "#" {
+				fmt.Print("\033[31m#\033[0m") // Print obstacle in red
+			} else if cell == "O" {
+				fmt.Print("\033[33mO\033[0m") // Print marked cell in yellow
+			} else {
+				fmt.Print(cell)
+			}
+		}
+		fmt.Println()
 	}
 }
