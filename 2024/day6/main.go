@@ -23,7 +23,7 @@ type Guard struct {
 }
 
 func main() {
-	lines := utils.ReadAndSplitRows("./input.txt", false, "")
+	lines := utils.ReadAndSplitRows("./test.txt", false, "")
 	linesCopy := make([][]string, len(lines))
 	for i := range lines {
 		linesCopy[i] = make([]string, len(lines[i]))
@@ -45,18 +45,15 @@ func part1(lines [][]string, guard Guard, fakeObstacleX int, fakeObstacleY int) 
 	fmt.Printf("Guard: %+v\n", guard)
 	maxX := len(lines[0])
 	maxY := len(lines)
-	stepTaken := 1
+	stepTaken := 0
 	loop := 0
 	for {
 		if loop < 5 {
-			if (guard.Direction == Right && guard.X+1 == fakeObstacleX && guard.Y == fakeObstacleY) ||
-				(guard.Direction == Left && guard.X-1 == fakeObstacleX && guard.Y == fakeObstacleY) ||
-				(guard.Direction == Up && guard.X == fakeObstacleX && guard.Y-1 == fakeObstacleY) ||
-				(guard.Direction == Down && guard.X == fakeObstacleX && guard.Y+1 == fakeObstacleY) {
+			if isAtFakeObstacle(guard, fakeObstacleX, fakeObstacleY) {
 				loop++
 			}
 		} else {
-			println("loop detected", fakeObstacleX, fakeObstacleY)
+			fmt.Println("loop detected", fakeObstacleX, fakeObstacleY)
 			return false
 		}
 
@@ -124,16 +121,31 @@ func findGuards(lines [][]string) []Guard {
 	return guards
 }
 
-func isWithinBoundaries(x, y, maxX, maxY int, direction Direction) bool {
+func isAtFakeObstacle(guard Guard, fakeObstacleX int, fakeObstacleY int) bool {
+	switch guard.Direction {
+	case Right:
+		return guard.X+1 == fakeObstacleX && guard.Y == fakeObstacleY
+	case Left:
+		return guard.X-1 == fakeObstacleX && guard.Y == fakeObstacleY
+	case Up:
+		return guard.X == fakeObstacleX && guard.Y-1 == fakeObstacleY
+	case Down:
+		return guard.X == fakeObstacleX && guard.Y+1 == fakeObstacleY
+	default:
+		return false
+	}
+}
+
+func isWithinBoundaries(x int, y int, maxX int, maxY int, direction Direction) bool {
 	switch direction {
 	case Right:
-		return x >= 0 && x < maxX-1 && y >= 0 && y < maxY
+		return x+1 < maxX
 	case Left:
-		return x > 0 && x < maxX && y >= 0 && y < maxY
+		return x-1 >= 0
 	case Up:
-		return x >= 0 && x < maxX && y > 0 && y < maxY
+		return y-1 >= 0
 	case Down:
-		return x >= 0 && x < maxX && y >= 0 && y < maxY-1
+		return y+1 < maxY
 	default:
 		return false
 	}
