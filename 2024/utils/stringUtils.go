@@ -36,3 +36,33 @@ func Atoi(s string) int {
 	}
 	return i
 }
+
+func SplitLineMultipleDelimiters(line string, delimitersList []string, removeWhiteSpaces bool) []string {
+	if len(delimitersList) == 0 {
+		return []string{line}
+	}
+
+	// Split the line by the first delimiter
+	parts := strings.Split(line, delimitersList[0])
+
+	// If there are more delimiters, split each part further
+	if len(delimitersList) > 1 {
+		var result []string
+		for _, part := range parts {
+			result = append(result, SplitLineMultipleDelimiters(part, delimitersList[1:], removeWhiteSpaces)...)
+		}
+		parts = result
+	}
+
+	if removeWhiteSpaces {
+		toAdd := make([]string, 0)
+		for _, part := range parts {
+			if part != " " && part != "" {
+				toAdd = append(toAdd, part)
+			}
+		}
+		parts = toAdd
+	}
+
+	return parts
+}

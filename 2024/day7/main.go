@@ -12,12 +12,14 @@ type Row struct {
 }
 
 func main() {
-	lines := utils.ReadAndSplitRows("./input.txt", false, ":")
+	lines := utils.ReadFileLineByLine("./input.txt")
 	SplittedLines := []Row{}
 	for _, line := range lines {
-		formedBy := utils.ArrayAtoi(utils.SplitStringToArray(line[1], true, " "))
-		SplittedLines = append(SplittedLines, Row{number: utils.Atoi(line[0]), formedBy: formedBy})
+		res := utils.SplitLineMultipleDelimiters(line, []string{":", " "}, true)
+		formedBy := utils.ArrayAtoi(res[1:])
+		SplittedLines = append(SplittedLines, Row{number: utils.Atoi(res[0]), formedBy: formedBy})
 	}
+
 	toFixSolutions, sum1 := part1(SplittedLines)
 	sum1 = sum1 + part2(toFixSolutions)
 	println(sum1)
