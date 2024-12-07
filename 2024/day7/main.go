@@ -18,14 +18,12 @@ func main() {
 		formedBy := utils.ArrayAtoi(utils.SplitStringToArray(line[1], true, " "))
 		SplittedLines = append(SplittedLines, Row{number: utils.Atoi(line[0]), formedBy: formedBy})
 	}
-	println(SplittedLines)
 	toFixSolutions, sum1 := part1(SplittedLines)
 	sum1 = sum1 + part2(toFixSolutions)
 	println(sum1)
 }
 func part1(lines []Row) ([]Row, int) {
 	sum := 0
-	validSolutions := [][]string{}
 	toFixSolutions := []Row{}
 
 	for _, line := range lines {
@@ -34,7 +32,6 @@ func part1(lines []Row) ([]Row, int) {
 
 		for _, combo := range operatosCombo {
 			if line.number == applyCombos(combo, line.formedBy) {
-				validSolutions = append(validSolutions, combo)
 				sum = sum + line.number
 				count = count + 1
 				break
@@ -44,7 +41,6 @@ func part1(lines []Row) ([]Row, int) {
 			toFixSolutions = append(toFixSolutions, line)
 		}
 	}
-	println(validSolutions)
 	println(sum)
 	return toFixSolutions, sum
 }
