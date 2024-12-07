@@ -1,6 +1,10 @@
 package main
 
-import "adventofcode-2024/utils"
+import (
+	"adventofcode-2024/utils"
+	"fmt"
+	"strconv"
+)
 
 type Row struct {
 	number   int
@@ -15,25 +19,49 @@ func main() {
 		SplittedLines = append(SplittedLines, Row{number: utils.Atoi(line[0]), formedBy: formedBy})
 	}
 	println(SplittedLines)
-	part1(SplittedLines)
-
+	toFixSolutions, sum1 := part1(SplittedLines)
+	sum1 = sum1 + part2(toFixSolutions)
+	println(sum1)
 }
-func part1(lines []Row) {
+func part1(lines []Row) ([]Row, int) {
 	sum := 0
 	validSolutions := [][]string{}
+	toFixSolutions := []Row{}
 
 	for _, line := range lines {
-		operatosCombo := generateOperatorCombinations(len(line.formedBy) - 1)
+		operatosCombo := generateOperatorCombinations(len(line.formedBy)-1, []string{"+", "*"})
+		count := 0
+
 		for _, combo := range operatosCombo {
 			if line.number == applyCombos(combo, line.formedBy) {
 				validSolutions = append(validSolutions, combo)
+				sum = sum + line.number
+				count = count + 1
+				break
+			}
+		}
+		if count == 0 {
+			toFixSolutions = append(toFixSolutions, line)
+		}
+	}
+	println(validSolutions)
+	println(sum)
+	return toFixSolutions, sum
+}
+
+func part2(lines []Row) int {
+	sum := 0
+
+	for _, line := range lines {
+		operatosCombo := generateOperatorCombinations(len(line.formedBy)-1, []string{"+", "*", "||"})
+		for _, combo := range operatosCombo {
+			if line.number == applyCombosPart2(combo, line.formedBy) {
 				sum = sum + line.number
 				break
 			}
 		}
 	}
-	println(validSolutions)
-	println(sum)
+	return sum
 }
 
 func applyCombos(combos []string, values []int) int {
@@ -49,10 +77,26 @@ func applyCombos(combos []string, values []int) int {
 	return result
 }
 
-func generateOperatorCombinations(n int) [][]string {
+func applyCombosPart2(combos []string, values []int) int {
+	result := values[0]
+	for i := 1; i < len(values); i++ {
+		if combos[i-1] == "+" {
+			result = result + values[i]
+		}
+		if combos[i-1] == "*" {
+			result = result * values[i]
+		}
+		if combos[i-1] == "||" {
+			resultStr := fmt.Sprintf("%d%d", result, values[i])
+			result, _ = strconv.Atoi(resultStr)
+		}
+	}
+	return result
+}
+
+func generateOperatorCombinations(n int, ops []string) [][]string {
 	// Generate all combinations of "+" and "*" for n positions without duplicates
 	combinations := [][]string{}
-	ops := []string{"+", "*"}
 
 	// Helper function for recursive combination generation
 	var helper func(current []string, depth int)
