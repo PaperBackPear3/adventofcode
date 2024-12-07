@@ -47,10 +47,13 @@ func part1(lines [][]string, guard Guard, fakeObstacleX int, fakeObstacleY int, 
 	maxY := len(lines)
 	stepTaken := 0
 	loop := 0
-	for {
+	for i := 0; i < 6*maxX*maxY; i++ {
+		// if fakeObstacleX == 81 && fakeObstacleY == 4 {
+		// 	printMap(lines, guard)
+		// }
 		if loop < 5 {
 			if isAtFakeObstacle(guard, fakeObstacleX, fakeObstacleY) {
-				loop++
+				loop = loop + 1
 			}
 		} else {
 			fmt.Println("loop detected", fakeObstacleX, fakeObstacleY)
@@ -106,6 +109,8 @@ func part1(lines [][]string, guard Guard, fakeObstacleX int, fakeObstacleY int, 
 		}
 	}
 	println("steps: ", stepTaken)
+	//printMap(lines, guard)
+
 	return true
 }
 
@@ -159,7 +164,10 @@ func part2(linesWithPath [][]string, guard Guard) {
 	for y := range linesWithPath {
 		for x := range linesWithPath[y] {
 			if linesWithPath[y][x] == "X" {
-				fmt.Printf("Fake Obstacle at: (%d, %d)\n", x, y)
+				fmt.Printf("Fake Obstacle at: (x: %d, y: %d)\n", x, y)
+				if x == 81 && y == 4 {
+					fmt.Printf("Fake Obstacle at: (x: %d, y: %d)\n", x, y)
+				}
 				linesCopy := make([][]string, len(linesWithPath))
 				for i := range linesWithPath {
 					linesCopy[i] = make([]string, len(linesWithPath[i]))
@@ -169,7 +177,7 @@ func part2(linesWithPath [][]string, guard Guard) {
 				if !part1(linesCopy, guard, x, y, "$") {
 					linesWithPath[y][x] = "O"
 					count = count + 1
-					printMap(linesCopy, guard)
+					//printMap(linesCopy, guard)
 				}
 			}
 		}
