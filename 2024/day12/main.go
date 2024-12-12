@@ -44,7 +44,7 @@ type Aiuola struct {
 
 func main() {
 
-	lines := utils.ReadAndSplitRows("./test.txt", false, "")
+	lines := utils.ReadAndSplitRows("./input.txt", false, "")
 
 	flowerMap := make([][]Flower, len(lines))
 	for i := range flowerMap {
@@ -76,59 +76,36 @@ func main() {
 func part1(flowerMap [][]Flower) {
 	aiuole := []Aiuola{}
 
-	for y := range flowerMap {
-		for x := range flowerMap[y] {
-			flower := &flowerMap[y][x]
-			if !flower.visited {
-				if len(aiuole) == 0 {
-					aiuole = append(aiuole, Aiuola{
-						flowerType: flower.flowerName,
-						flowes:     []Flower{*flower},
-					})
-				} else {
-					found := false
-					for i := range aiuole {
-						if aiuole[i].flowerType == flower.flowerName {
-							for _, f := range aiuole[i].flowes {
-								if (f.coordinates.X == flower.coordinates.X && (f.coordinates.Y == flower.coordinates.Y-1 || f.coordinates.Y == flower.coordinates.Y+1)) ||
-									(f.coordinates.Y == flower.coordinates.Y && (f.coordinates.X == flower.coordinates.X-1 || f.coordinates.X == flower.coordinates.X+1)) {
-									aiuole[i].flowes = append(aiuole[i].flowes, *flower)
-									found = true
-									break
-								}
-							}
-						}
-					}
-					if !found {
-						aiuole = append(aiuole, Aiuola{
-							flowerType: flower.flowerName,
-							flowes:     []Flower{*flower},
-						})
-					}
-				}
-				flower.MarkVisited()
-			}
+	visited := make(map[models.Coordinates]bool)
 
+	var floodFill func(x, y int, flowerName string) []Flower
+	floodFill = func(x, y int, flowerName string) []Flower {
+		if x < 0 || x >= len(flowerMap[0]) || y < 0 || y >= len(flowerMap) {
+			return nil
 		}
+		coord := models.Coordinates{X: x, Y: y}
+		if visited[coord] || flowerMap[y][x].flowerName != flowerName {
+			return nil
+		}
+		visited[coord] = true
+		flowerMap[y][x].MarkVisited()
+		flowers := []Flower{flowerMap[y][x]}
+		flowers = append(flowers, floodFill(x-1, y, flowerName)...)
+		flowers = append(flowers, floodFill(x+1, y, flowerName)...)
+		flowers = append(flowers, floodFill(x, y-1, flowerName)...)
+		flowers = append(flowers, floodFill(x, y+1, flowerName)...)
+		return flowers
 	}
 
-	// Merge aiuole with at least one flower with the same coordinates
-	for i := 0; i < len(aiuole); i++ {
-		for j := i + 1; j < len(aiuole); j++ {
-			merged := false
-			for _, f1 := range aiuole[i].flowes {
-				for _, f2 := range aiuole[j].flowes {
-					if f1.coordinates == f2.coordinates {
-						aiuole[i].flowes = append(aiuole[i].flowes, aiuole[j].flowes...)
-						// Remove aiuole[j]
-						aiuole = append(aiuole[:j], aiuole[j+1:]...)
-						j--
-						merged = true
-						break
-					}
-				}
-				if merged {
-					break
+	for y := range flowerMap {
+		for x := range flowerMap[y] {
+			if !flowerMap[y][x].visited {
+				flowers := floodFill(x, y, flowerMap[y][x].flowerName)
+				if len(flowers) > 0 {
+					aiuole = append(aiuole, Aiuola{
+						flowerType: flowerMap[y][x].flowerName,
+						flowes:     flowers,
+					})
 				}
 			}
 		}
