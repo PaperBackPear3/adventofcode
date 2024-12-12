@@ -80,33 +80,9 @@ func part1(flowerMap [][]Flower) {
 		for x := range flowerMap[y] {
 			flower := &flowerMap[y][x]
 			if !flower.visited {
-				isAdiecentLeft := false
-				isAdiecentRight := false
-				isAdiecentUp := false
-				isAdiecentDown := false
-				//check prev
-				if x > 0 && flowerMap[y][x-1].flowerName == flower.flowerName {
-					isAdiecentLeft = true
-				}
-				// check next
-				if x < len(flowerMap[y])-1 && flowerMap[y][x+1].flowerName == flower.flowerName {
-					isAdiecentRight = true
-				}
-				//check up
-				if y > 0 && flowerMap[y-1][x].flowerName == flower.flowerName {
-					isAdiecentUp = true
-				}
-				//check down
-				if y < len(flowerMap)-1 && flowerMap[y+1][x].flowerName == flower.flowerName {
-					isAdiecentDown = true
-				}
-
 				if len(aiuole) == 0 {
-
 					aiuole = append(aiuole, Aiuola{
 						flowerType: flower.flowerName,
-						perimeter:  getPerimiter(isAdiecentLeft, isAdiecentRight, isAdiecentUp, isAdiecentDown),
-						area:       1,
 						flowes:     []Flower{*flower},
 					})
 				} else {
@@ -116,30 +92,61 @@ func part1(flowerMap [][]Flower) {
 							for _, f := range aiuole[i].flowes {
 								if (f.coordinates.X == flower.coordinates.X && (f.coordinates.Y == flower.coordinates.Y-1 || f.coordinates.Y == flower.coordinates.Y+1)) ||
 									(f.coordinates.Y == flower.coordinates.Y && (f.coordinates.X == flower.coordinates.X-1 || f.coordinates.X == flower.coordinates.X+1)) {
-									aiuole[i].perimeter += getPerimiter(isAdiecentLeft, isAdiecentRight, isAdiecentUp, isAdiecentDown)
-									aiuole[i].area++
 									aiuole[i].flowes = append(aiuole[i].flowes, *flower)
 									found = true
 									break
 								}
 							}
-							break
 						}
 					}
 					if !found {
 						aiuole = append(aiuole, Aiuola{
 							flowerType: flower.flowerName,
-							perimeter:  getPerimiter(isAdiecentLeft, isAdiecentRight, isAdiecentUp, isAdiecentDown),
-							area:       1,
 							flowes:     []Flower{*flower},
 						})
 					}
 				}
-
 				flower.MarkVisited()
 			}
 
 		}
+	}
+
+	// Merge aiuole with at least one flower with the same coordinates
+	for i := 0; i < len(aiuole); i++ {
+		for j := i + 1; j < len(aiuole); j++ {
+			merged := false
+			for _, f1 := range aiuole[i].flowes {
+				for _, f2 := range aiuole[j].flowes {
+					if f1.coordinates == f2.coordinates {
+						aiuole[i].flowes = append(aiuole[i].flowes, aiuole[j].flowes...)
+						// Remove aiuole[j]
+						aiuole = append(aiuole[:j], aiuole[j+1:]...)
+						j--
+						merged = true
+						break
+					}
+				}
+				if merged {
+					break
+				}
+			}
+		}
+	}
+
+	for i := range aiuole {
+		aiuola := &aiuole[i]
+		aiuola.area = len(aiuola.flowes)
+		perimeter := 0
+		for _, flower := range aiuola.flowes {
+			x, y := flower.coordinates.X, flower.coordinates.Y
+			isAdiecentLeft := x > 0 && flowerMap[y][x-1].flowerName == flower.flowerName
+			isAdiecentRight := x < len(flowerMap[0])-1 && flowerMap[y][x+1].flowerName == flower.flowerName
+			isAdiecentUp := y > 0 && flowerMap[y-1][x].flowerName == flower.flowerName
+			isAdiecentDown := y < len(flowerMap)-1 && flowerMap[y+1][x].flowerName == flower.flowerName
+			perimeter += getPerimiter(isAdiecentLeft, isAdiecentRight, isAdiecentUp, isAdiecentDown)
+		}
+		aiuola.perimeter = perimeter
 	}
 
 	total := 0
