@@ -44,7 +44,7 @@ type Aiuola struct {
 
 func main() {
 
-	lines := utils.ReadAndSplitRows("./input.txt", false, "")
+	lines := utils.ReadAndSplitRows("./test.txt", false, "")
 
 	flowerMap := make([][]Flower, len(lines))
 	for i := range flowerMap {
@@ -60,7 +60,8 @@ func main() {
 			}
 		}
 	}
-	part1(flowerMap)
+	aiuole := part1(flowerMap)
+	part2(aiuole)
 
 	flowersGroup := map[string][]models.Coordinates{}
 
@@ -73,21 +74,17 @@ func main() {
 	utils.PrintMapWithColors(lines, flowersGroup)
 }
 
-func part1(flowerMap [][]Flower) {
+func part1(flowerMap [][]Flower) []Aiuola {
 	aiuole := []Aiuola{}
-
-	visited := make(map[models.Coordinates]bool)
 
 	var floodFill func(x, y int, flowerName string) []Flower
 	floodFill = func(x, y int, flowerName string) []Flower {
 		if x < 0 || x >= len(flowerMap[0]) || y < 0 || y >= len(flowerMap) {
 			return nil
 		}
-		coord := models.Coordinates{X: x, Y: y}
-		if visited[coord] || flowerMap[y][x].flowerName != flowerName {
+		if flowerMap[y][x].visited || flowerMap[y][x].flowerName != flowerName {
 			return nil
 		}
-		visited[coord] = true
 		flowerMap[y][x].MarkVisited()
 		flowers := []Flower{flowerMap[y][x]}
 		flowers = append(flowers, floodFill(x-1, y, flowerName)...)
@@ -131,5 +128,14 @@ func part1(flowerMap [][]Flower) {
 		total += aiuola.perimeter * aiuola.area
 	}
 	fmt.Println("Total:", total)
+	return aiuole
+}
+
+func part2(aiuole []Aiuola) {
+	// for _, aiuola := range aiuole {
+	// 	for _, fiore := range aiuola.flowes {
+
+	// 	}
+	// }
 
 }
