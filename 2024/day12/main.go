@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 	aiuole := part1(flowerMap)
-	part2(aiuole)
+	part2(aiuole, flowerMap)
 
 	flowersGroup := map[string][]models.Coordinates{}
 
@@ -131,11 +131,29 @@ func part1(flowerMap [][]Flower) []Aiuola {
 	return aiuole
 }
 
-func part2(aiuole []Aiuola) {
-	// for _, aiuola := range aiuole {
-	// 	for _, fiore := range aiuola.flowes {
+func part2(aiuole []Aiuola, flowerMap [][]Flower) {
+	total := 0
 
-	// 	}
-	// }
+	for _, aiuola := range aiuole {
+		perimeterSides := 0
+		for _, flower := range aiuola.flowes {
+			x, y := flower.coordinates.X, flower.coordinates.Y
+			if x == 0 || flowerMap[y][x-1].flowerName != flower.flowerName {
+				perimeterSides++
+			}
+			if x == len(flowerMap[0])-1 || flowerMap[y][x+1].flowerName != flower.flowerName {
+				perimeterSides++
+			}
+			if y == 0 || flowerMap[y-1][x].flowerName != flower.flowerName {
+				perimeterSides++
+			}
+			if y == len(flowerMap)-1 || flowerMap[y+1][x].flowerName != flower.flowerName {
+				perimeterSides++
+			}
+		}
+		total += perimeterSides * aiuola.area
+	}
+
+	fmt.Println("Total:", total)
 
 }
