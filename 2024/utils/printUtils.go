@@ -40,7 +40,6 @@ func GenerateRandomColor(existingColors map[string]string) string {
 			if !isCloseShade(existingColors, color) {
 				break
 			}
-			break
 		}
 	}
 	return color
