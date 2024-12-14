@@ -37,6 +37,12 @@ func Atoi(s string) int {
 	return i
 }
 
+func Itoa(i int) string {
+	// Convert an integer to a string
+	// Returns the string
+	return strconv.Itoa(i)
+}
+
 func SplitLineMultipleDelimiters(line string, delimitersList []string, removeWhiteSpaces bool) []string {
 	if len(delimitersList) == 0 {
 		return []string{line}
