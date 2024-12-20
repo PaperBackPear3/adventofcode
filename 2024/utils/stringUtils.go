@@ -72,3 +72,16 @@ func SplitLineMultipleDelimiters(line string, delimitersList []string, removeWhi
 
 	return parts
 }
+
+func Contains(str, substr string) bool {
+	return strings.Contains(str, substr)
+}
+
+func ContainsInArray(arr []string, str string) bool {
+	for _, item := range arr {
+		if item == str {
+			return true
+		}
+	}
+	return false
+}
