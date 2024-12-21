@@ -41,8 +41,9 @@ func main() {
 }
 
 func part1(computer Computer) {
-	for index, instruction := range computer.instruction {
-		instructionValue := computer.value[index]
+	for internalPointer := 0; internalPointer < len(computer.instruction); internalPointer++ {
+		instruction := computer.instruction[internalPointer]
+		instructionValue := computer.value[internalPointer]
 		switch instruction {
 		case 0:
 			computer.registerDv("A", instructionValue)
@@ -51,7 +52,10 @@ func part1(computer Computer) {
 		case 2:
 			computer.bst(instructionValue)
 		case 3:
-			computer.jnz(instructionValue)
+			jumpTo := computer.jnz(instructionValue)
+			if jumpTo >= -1 {
+				internalPointer = jumpTo
+			}
 		case 4:
 			computer.bxc(instructionValue)
 		case 5:
@@ -148,10 +152,12 @@ func (computer *Computer) bst(code int) {
 	computer.registers["B"] = res
 }
 
-// todo jumps
-func (computer *Computer) jnz(code int) {
+// done jumps
+func (computer *Computer) jnz(code int) int {
 	if computer.registers["A"] != 0 {
-		//find a way to jump by code
+		return code - 1
+	} else {
+		return -2
 	}
 }
 
