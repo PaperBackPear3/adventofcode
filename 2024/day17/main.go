@@ -13,7 +13,7 @@ type Computer struct {
 }
 
 func main() {
-	lines := utils.ReadFileLineByLine("./test.txt")
+	lines := utils.ReadFileLineByLine("./input.txt")
 
 	computer := Computer{registers: map[string]int{}}
 
@@ -36,14 +36,15 @@ func main() {
 			}
 		}
 	}
-	println(computer.instruction)
 	part1(computer)
 }
 
 func part1(computer Computer) {
+	stringOut := ""
 	for internalPointer := 0; internalPointer < len(computer.instruction); internalPointer++ {
 		instruction := computer.instruction[internalPointer]
 		instructionValue := computer.value[internalPointer]
+		println("\033[32m", "internalPointer:", internalPointer, "instruction:", instruction, "value:", instructionValue, "\033[0m")
 		switch instruction {
 		case 0:
 			computer.registerDv("A", instructionValue)
@@ -59,7 +60,8 @@ func part1(computer Computer) {
 		case 4:
 			computer.bxc(instructionValue)
 		case 5:
-			computer.out(instructionValue)
+			toPrint := computer.out(instructionValue)
+			stringOut = stringOut + utils.Itoa(toPrint)
 		case 6:
 			computer.registerDv("B", instructionValue)
 		case 7:
@@ -68,6 +70,7 @@ func part1(computer Computer) {
 			panic("unexpected instruction")
 		}
 	}
+	println("stringOut: ", stringOut)
 }
 
 func (computer *Computer) getComboFromCode(code int) (int, error) {
@@ -103,7 +106,7 @@ func (computer *Computer) bxl(code int) int {
 	binNum := toBin(num)
 	operand := code
 	binOperand := toBin(operand)
-	println(binNum, binOperand)
+	println("\033[31m" + "bins:" + binNum + " " + binOperand + "\033[0m")
 
 	longest := binNum
 	shortest := binOperand
@@ -162,10 +165,11 @@ func (computer *Computer) jnz(code int) int {
 }
 
 // bst with compo operator
-func (computer *Computer) out(code int) {
+func (computer *Computer) out(code int) int {
 	val, _ := computer.getComboFromCode(code)
 	res := val % 8
-	println(res)
+	println("out: ", res, " code: ", code)
+	return res
 }
 
 func toBin(n int) string {
