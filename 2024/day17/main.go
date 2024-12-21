@@ -85,7 +85,7 @@ func (computer *Computer) getComboFromCode(code int) (int, error) {
 	return 0, errors.New("wtf?")
 }
 
-// done
+// done divide and save in a register
 func (computer *Computer) registerDv(registerToSave string, code int) {
 	num := computer.registers["A"]
 	val, _ := computer.getComboFromCode(code)
@@ -93,44 +93,73 @@ func (computer *Computer) registerDv(registerToSave string, code int) {
 	computer.registers[registerToSave] = num / int(den)
 }
 
-// todo
+// done bitwise Xor with litteral value
 func (computer *Computer) bxl(code int) int {
 	num := computer.registers["B"]
 	binNum := toBin(num)
 	operand := code
 	binOperand := toBin(operand)
+	println(binNum, binOperand)
 
-	computer.registers["B"] = 0
-	return 0
+	longest := binNum
+	shortest := binOperand
+	diff := len(longest) - len(shortest)
+	offset := diff
+	bxValue := ""
+	if diff < 0 {
+		tmp := longest
+		longest = shortest
+		shortest = tmp
+		diff = diff * -1
+		offset = offset * -1
+	}
+	for index, char := range longest {
+		if diff > 0 {
+			if char != '0' {
+				bxValue = bxValue + "1"
+			} else {
+				bxValue = bxValue + "0"
+			}
+			diff--
+		} else {
+			if char != rune(shortest[index-offset]) {
+				bxValue = bxValue + "1"
+			} else {
+				bxValue = bxValue + "0"
+			}
+		}
+	}
+	dec := toDec(bxValue)
+
+	computer.registers["B"] = dec
+	return dec
 }
 
-// done
+// done bitwise Xor with value from register C
 func (computer *Computer) bxc(code int) {
 	res := computer.bxl(computer.registers["C"])
 	computer.registers["B"] = res
 }
 
-// to test
-
-func (computer *Computer) bst(code int) int {
+// done mod 8 of the value
+func (computer *Computer) bst(code int) {
 	val, _ := computer.getComboFromCode(code)
 	res := val % 8
 	computer.registers["B"] = res
-	return res
 }
 
-// todo
+// todo jumps
 func (computer *Computer) jnz(code int) {
 	if computer.registers["A"] != 0 {
 		//find a way to jump by code
 	}
 }
 
-// done
+// bst with compo operator
 func (computer *Computer) out(code int) {
 	val, _ := computer.getComboFromCode(code)
-	bxl := computer.bxl(val)
-	println(bxl)
+	res := val % 8
+	println(res)
 }
 
 func toBin(n int) string {
@@ -157,6 +186,15 @@ func toBin(n int) string {
 	return bin
 }
 
-func toDec(n int) int {
-	return 10
+func toDec(n string) int {
+	dec := 0
+	base := 1
+	length := len(n)
+	for i := length - 1; i >= 0; i-- {
+		if n[i] == '1' {
+			dec += base
+		}
+		base *= 2
+	}
+	return dec
 }
